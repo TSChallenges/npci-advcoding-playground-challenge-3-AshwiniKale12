@@ -42,6 +42,7 @@ public class InventoryManager {
                 case 4:
                     System.out.println("Exiting program");
                     sc.close();
+                    return;
                 default:
                     System.out.println("Invalid choice");
             }
