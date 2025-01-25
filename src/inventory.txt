@@ -1,1 +1,3 @@
 
+Apple:50
+Mango:90
