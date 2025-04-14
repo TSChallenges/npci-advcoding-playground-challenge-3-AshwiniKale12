@@ -16,8 +16,15 @@ public class InventoryManager {
             System.out.println("4. Exit");
             System.out.println("Enter your choice:");
 
-            int choice = sc.nextInt();
-            sc.nextLine();
+            int choice ;
+              try {
+                choice = sc.nextInt();
+                sc.nextLine(); 
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                sc.nextLine(); 
+                continue;
+            }
 
             switch(choice){
                 case 1:
@@ -50,18 +57,20 @@ public class InventoryManager {
     }
 
     public static void readInventory(String fileName) {
-       
-
         File file = new File(fileName);
         if(!file.exists()){
-            System.out.println("Inventory is empty");
+            System.out.println("Inventory is empty or file does not exist ");
             return;
         }
         try(BufferedReader reader = new BufferedReader(new FileReader(file))){
             String line;
-            System.out.println("Inventory");
+            System.out.println("\n--- Current Inventory ---");
             while((line = reader.readLine())!= null){
-                System.out.println(line);
+                String[] parts = line.split(",");
+                if(parts.length == 2){
+                    System.out.println("Item: " + parts[0] + ", Count: " + parts[1]);
+                }
+                
             }
         }catch(IOException e){
             System.out.println("Error while reading Inventory"+ e.getMessage());
@@ -73,28 +82,32 @@ public class InventoryManager {
        boolean itemExist = false;
        List<String> inventory = new ArrayList<>();
 
-       try(BufferedReader reader = new BufferedReader(new FileReader(file))){
+       try{
+        if(file.exists()){
+            BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         System.out.println("Inventory");
         while((line = reader.readLine())!= null){
-            if(line.startsWith(itemName + ":")){
+            String[] parts = line.split(",");
+            if(parts.length == 2 && parts[0].equalsIgnoreCase(itemName)){
                 itemExist=true;
-                break;
             }
             inventory.add(line);
+        }
+        reader.close();
         }
     }catch(IOException e){
         System.out.println("Error while reading Inventory"+ e.getMessage());
     }
 
     if(itemExist){
-        System.out.println("Item already exist ");
+        System.out.println("Item already exist. ");
 
     }else{
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file,true))){
-            writer.write(itemName + ":" + itemCount);
+            writer.write(itemName + "," + itemCount);
             writer.newLine();
-            System.out.println("Item added sucessfully ");
+            System.out.println("Item added successfully. ");
 
         }catch(IOException e){
             System.out.println("Error while adding item " + e.getMessage());
@@ -108,32 +121,39 @@ public class InventoryManager {
  
         File file = new File(fileName);
         boolean itemExist = false;
-        List<String> inventory = new ArrayList<>();
- 
-        try(BufferedReader reader = new BufferedReader(new FileReader(file))){
-         String line;
-         System.out.println("Inventory");
-         while((line = reader.readLine())!= null){
-             if(line.startsWith(itemName + ":")){
-                inventory.add(itemName + ":"+ itemCount);
-                 itemExist=true;
-                 break;
-             }
-             inventory.add(line);
-         }
-     }catch(IOException e){
-         System.out.println("Error while reading Inventory"+ e.getMessage());
-     }
+        List<String> updateInventory = new ArrayList<>();
+        try{
+            if(!file.exists()){
+                System.out.println("Inventory file doen't exist.");
+                return;
+            }
+
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            while((line = reader.readLine()) != null){
+                String[] parts = line.split(",");
+                if(parts.length == 2 && parts[0].equalsIgnoreCase(itemName)){
+                    updateInventory.add(itemName + "," + itemCount);
+                    itemExist = true;
+                }else{
+                    updateInventory.add(line);
+                }
+            }
+            reader.close();
+        }catch(IOException e){
+            System.out.println("Error while reading inventory:" + e.getMessage());
+        }
+        
      if(!itemExist){
-        System.out.println("Item not exist ");
+        System.out.println("Item not found in inventory.");
 
     }else{
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
-           for(String entry :inventory){
+           for(String entry :updateInventory){
                 writer.write(entry);
                 writer.newLine();
             }
-            System.out.println("Item updaed sucessfully");
+            System.out.println("Item updated successfully.");
 
         }catch(IOException e){
             System.out.println("Error while updating item" +e.getMessage());

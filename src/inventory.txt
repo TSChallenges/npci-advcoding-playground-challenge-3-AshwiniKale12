@@ -1,3 +1,5 @@
-
-Apple:50
-Mango:98
+Apple,20
+mango,50
+grapes,60
+orange,70
+banana,50
